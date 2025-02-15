@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  HOST_DEPLOY: 54.198.164.202
+
 jobs:
 
   build:
@@ -22,4 +25,9 @@ jobs:
         docker login -u ${{ secrets.DH_USER }} -p ${{ secrets.DH_PASS }}
         docker push jaraujof/flask-app:$commit_hash
         docker push jaraujof/flask-app:latest
+    - name: Redeploy container
+      run: |
+        ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker stop uni-flask-app
+        ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker rm uni-flask-app
+        ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker run -d --name uni-flask-app -p 5000:5000 jaraujof/flask-app:latest
         
