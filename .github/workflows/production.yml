@@ -10,12 +10,10 @@ env:
   HOST_DEPLOY: 54.198.164.202
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
     environment: production
-
+    
     steps:
     - uses: actions/checkout@v4
     - name: Build and push docker image
@@ -25,12 +23,12 @@ jobs:
         echo ${{ secrets.DH_PASS }} | docker login -u ${{ secrets.DH_USER }} --password-stdin
         docker push jaraujof/flask-app:$commit_hash
         docker push jaraujof/flask-app:latest
-    - name: Redeploy container
-      run: |
-        echo @$HOST_DEPLOY
-        echo $commit_hash
+    # - name: Redeploy container
+    #   run: |
+    #     echo @$HOST_DEPLOY
+    #     echo $commit_hash
 
-        ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker stop uni-flask-app
-        ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker rm uni-flask-app
-        ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker run -d --name uni-flask-app -p 5000:5000 jaraujof/flask-app:latest
+    #     ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker stop uni-flask-app
+    #     ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker rm uni-flask-app
+    #     ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker run -d --name uni-flask-app -p 5000:5000 jaraujof/flask-app:latest
         
