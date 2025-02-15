@@ -22,7 +22,7 @@ jobs:
       run: |
         commit_hash=$(echo $(git show -s --format="%H" HEAD) | cut -c1-10)
         docker build -t jaraujof/flask-app:latest -t jaraujof/flask-app:$commit_hash .
-        docker login -u ${{ secrets.DH_USER }} -p ${{ secrets.DH_PASS }}
+        echo ${{ secrets.DH_PASS }} | docker login -u ${{ secrets.DH_USER }} --password-stdin
         docker push jaraujof/flask-app:$commit_hash
         docker push jaraujof/flask-app:latest
     - name: Redeploy container
