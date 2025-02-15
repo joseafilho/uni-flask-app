@@ -27,6 +27,9 @@ jobs:
         docker push jaraujof/flask-app:latest
     - name: Redeploy container
       run: |
+        echo @$HOST_DEPLOY
+        echo $commit_hash
+
         ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker stop uni-flask-app
         ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker rm uni-flask-app
         ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker run -d --name uni-flask-app -p 5000:5000 jaraujof/flask-app:latest
