@@ -1,4 +1,4 @@
-name: Unifametro Flask App CI/CD
+name: CI/CD - Production
 
 on:
   push:
