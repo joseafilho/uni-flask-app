@@ -1,0 +1,25 @@
+name: Unifametro Flask App CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build and push docker image
+      run: |
+        commit_hash=$(echo $(git show -s --format="%H" HEAD) | cut -c1-10)
+        docker build -t jaraujof/flask-app:latest -t jaraujof/flask-app:$commit_hash .
+        docker login -u ${{ secrets.DH_USER }} -p ${{ secrets.DH_PASS }}
+        docker push jaraujof/flask-app:$commit_hash
+        docker push jaraujof/flask-app:latest
+        
