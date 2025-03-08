@@ -36,7 +36,43 @@ jobs:
     #     DOCKERHUB_USER: ${{ secrets.DH_USER }}
     #     DOCKERHUB_PASS: ${{ secrets.DH_PASS }}
     
-    - name: Redeploy container
+    - name: Stop container
+      run: |
+        sh_command_id=$(aws ssm send-command --instance-ids "i-09bf8cb961049df83" \
+          --document-name "AWS-RunShellScript" \
+          --comment "IP config" \
+          --parameters commands="sudo docker stop uni-flask-app" \
+          --output text --query "Command.CommandId") \
+          sh -c 'aws ssm list-command-invocations \
+          --command-id "$sh_command_id" \
+          --details \
+          --query "CommandInvocations[].CommandPlugins[].{Status:Status,Output:Output}"'
+
+    - name: Remove container
+      run: |
+        sh_command_id=$(aws ssm send-command --instance-ids "i-09bf8cb961049df83" \
+          --document-name "AWS-RunShellScript" \
+          --comment "IP config" \
+          --parameters commands="sudo docker rm uni-flask-app" \
+          --output text --query "Command.CommandId") \
+          sh -c 'aws ssm list-command-invocations \
+          --command-id "$sh_command_id" \
+          --details \
+          --query "CommandInvocations[].CommandPlugins[].{Status:Status,Output:Output}"'
+    
+    - name: Start container
+      run: |
+        sh_command_id=$(aws ssm send-command --instance-ids "i-09bf8cb961049df83" \
+          --document-name "AWS-RunShellScript" \
+          --comment "IP config" \
+          --parameters commands="sudo docker run -d --name uni-flask-app -p 5000:5000 jaraujof/flask-app:latest" \
+          --output text --query "Command.CommandId") \
+          sh -c 'aws ssm list-command-invocations \
+          --command-id "$sh_command_id" \
+          --details \
+          --query "CommandInvocations[].CommandPlugins[].{Status:Status,Output:Output}"'
+
+    - name: Status container
       run: |
         sh_command_id=$(aws ssm send-command --instance-ids "i-09bf8cb961049df83" \
           --document-name "AWS-RunShellScript" \
@@ -47,13 +83,4 @@ jobs:
           --command-id "$sh_command_id" \
           --details \
           --query "CommandInvocations[].CommandPlugins[].{Status:Status,Output:Output}"'
-
-    # - name: Redeploy container
-    #   run: |
-    #     echo @$HOST_DEPLOY
-    #     echo $commit_hash
-
-    #     ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker stop uni-flask-app
-    #     ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker rm uni-flask-app
-    #     ssh -i uni-flask-app.pem ubuntu@$HOST_DEPLOY sudo docker run -d --name uni-flask-app -p 5000:5000 jaraujof/flask-app:latest
         
