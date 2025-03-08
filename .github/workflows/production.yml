@@ -16,6 +16,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+
+    - name: Configure AWS Credentials.
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_AC }}
+        aws-secret-access-key: ${{ secrets.AWS_SK }}
+        aws-region: us-east-1
+        role-duration-seconds: 1200
     
     - name: Build and push docker image
       run: |
