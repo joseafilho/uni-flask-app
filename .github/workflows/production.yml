@@ -16,13 +16,17 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+    
     - name: Build and push docker image
       run: |
         commit_hash=$(echo $(git show -s --format="%H" HEAD) | cut -c1-10)
         docker build -t jaraujof/flask-app:latest -t jaraujof/flask-app:$commit_hash .
-        echo ${{ secrets.DH_PASS }} | docker login -u ${{ secrets.DH_USER }} --password-stdin
+        echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
         docker push jaraujof/flask-app:$commit_hash
         docker push jaraujof/flask-app:latest
+      env: 
+        DOCKERHUB_USER: ${{ secrets.DH_USER }}
+        DOCKERHUB_PASS: ${{ secrets.DH_PASS }}
     # - name: Redeploy container
     #   run: |
     #     echo @$HOST_DEPLOY
