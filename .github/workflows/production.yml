@@ -25,16 +25,25 @@ jobs:
         aws-region: us-east-1
         role-duration-seconds: 1200
     
-    - name: Build and push docker image
+    # - name: Build and push docker image
+    #   run: |
+    #     commit_hash=$(echo $(git show -s --format="%H" HEAD) | cut -c1-10)
+    #     docker build -t jaraujof/flask-app:latest -t jaraujof/flask-app:$commit_hash .
+    #     echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
+    #     docker push jaraujof/flask-app:$commit_hash
+    #     docker push jaraujof/flask-app:latest
+    #   env: 
+    #     DOCKERHUB_USER: ${{ secrets.DH_USER }}
+    #     DOCKERHUB_PASS: ${{ secrets.DH_PASS }}
+    
+    - name: Redeploy container
       run: |
-        commit_hash=$(echo $(git show -s --format="%H" HEAD) | cut -c1-10)
-        docker build -t jaraujof/flask-app:latest -t jaraujof/flask-app:$commit_hash .
-        echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin
-        docker push jaraujof/flask-app:$commit_hash
-        docker push jaraujof/flask-app:latest
-      env: 
-        DOCKERHUB_USER: ${{ secrets.DH_USER }}
-        DOCKERHUB_PASS: ${{ secrets.DH_PASS }}
+        aws ssm send-command --instance-ids "i-09bf8cb961049df83" \
+          --document-name "AWS-RunShellScript" \
+          --comment "IP config" \
+          --parameters commands=sudo docker ps -a \
+          --output text
+
     # - name: Redeploy container
     #   run: |
     #     echo @$HOST_DEPLOY
