@@ -41,7 +41,7 @@ jobs:
         aws ssm send-command --instance-ids "i-09bf8cb961049df83" \
           --document-name "AWS-RunShellScript" \
           --comment "IP config" \
-          --parameters commands=sudo docker ps -a \
+          --parameters commands="sudo docker ps -a" \
           --output text
 
     # - name: Redeploy container
